@@ -29,22 +29,6 @@ jobs:
       uses: peter-evans/repository-dispatch@v1
       with:
         token: ${{ secrets.PAT }}
-        repository: ${{ github.actor }}/node-app
+        repository: ${{ github.actor }}/argocd-node-app-config
         event-type: new-image
         client-payload: '{"image": "${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}"}'
-
-    - uses: actions/checkout@v2
-      with:
-        token: ${{ secrets.PAT }}
-        ref: ${{ github.head_ref }}
-
-    - name: Update Image Version
-      id: imgupd
-      uses: mikefarah/yq@master
-      with:
-        cmd: yq eval '.spec.template.spec.containers[0].image = "${{ github.event.client_payload.image }}"' -i node-app-infra/deployment.yaml
-
-    - uses: stefanzweifel/git-auto-commit-action@v4.14.1
-      with:
-        commit_message: Apply image name changes
-        push_options: --force
