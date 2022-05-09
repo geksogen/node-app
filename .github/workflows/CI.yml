@@ -33,13 +33,18 @@ jobs:
         event-type: new-image
         client-payload: '{"image": "${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}"}'
 
+    - uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.PAT }}
+        ref: ${{ github.head_ref }}
+
     - name: Update Image Version
       id: imgupd
       uses: mikefarah/yq@master
       with:
         cmd: yq eval '.spec.template.spec.containers[0].image = "${{ github.event.client_payload.image }}"' -i node-app-infra/deployment.yaml
 
-    - uses: stefanzweifel/git-auto-commit-action@v4.1.2
+    - uses: stefanzweifel/git-auto-commit-action@v4.14.1
       with:
         commit_message: Apply image name changes
-        branch: ${{ github.head_ref }}
+        push_options: --force
